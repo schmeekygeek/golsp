@@ -1,9 +1,14 @@
-[golsp]2024/05/09 23:33:58 main.go:14: Started
-[golsp]2024/05/09 23:33:58 main.go:30: Received message with method: initialize
-[golsp]2024/05/09 23:33:58 main.go:39: Connected to: Neovim 0.9.4
-[golsp]2024/05/09 23:33:58 main.go:51: Sent reply
-[golsp]2024/05/09 23:33:58 main.go:30: Received message with method: initialized
-[golsp]2024/05/09 23:33:58 main.go:30: Received message with method: textDocument/didOpen
-[golsp]2024/05/09 23:33:58 main.go:57: Opened: file:///home/abdul_samad/development/lsptest/hi.md hi saeotnuh
-[golsp]2024/05/09 23:34:08 main.go:30: Received message with method: textDocument/didChange
-[golsp]2024/05/09 23:34:16 main.go:30: Received message with method: shutdown
+[golsp]2024/05/17 22:03:36 main.go:16: Started
+[golsp]2024/05/17 22:03:36 main.go:35: Received message with method: initialize
+[golsp]2024/05/17 22:03:36 main.go:44: Connected to: Neovim 0.9.4
+[golsp]2024/05/17 22:03:36 main.go:53: Sent reply
+[golsp]2024/05/17 22:03:37 main.go:35: Received message with method: initialized
+[golsp]2024/05/17 22:03:37 main.go:35: Received message with method: textDocument/didOpen
+[golsp]2024/05/17 22:03:37 main.go:59: Opened: file:///home/abdul_samad/development/lsptest/hi.md
+[golsp]2024/05/17 22:03:41 main.go:35: Received message with method: textDocument/hover
+[golsp]2024/05/17 22:03:41 main.go:96: Sent reply to textDocument/hover
+[golsp]2024/05/17 22:03:45 main.go:35: Received message with method: textDocument/hover
+[golsp]2024/05/17 22:03:45 main.go:96: Sent reply to textDocument/hover
+[golsp]2024/05/17 22:03:46 main.go:35: Received message with method: textDocument/hover
+[golsp]2024/05/17 22:03:46 main.go:96: Sent reply to textDocument/hover
+[golsp]2024/05/17 22:06:18 main.go:35: Received message with method: shutdown
