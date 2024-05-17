@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"io"
 	"log"
+	"lspexample/analysis"
 	"lspexample/lsp"
 	"lspexample/rpc"
 	"os"
@@ -15,6 +17,9 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(rpc.Split)
 
+  state := analysis.NewState()
+  writer := os.Stdout
+
 	for scanner.Scan() {
 		msg := scanner.Bytes()
 		method, contents, err := rpc.DecodeMessage(msg)
@@ -22,11 +27,11 @@ func main() {
 			logger.Printf("Got an error: %s", err)
 			continue
 		}
-		handleMessage(logger, method, contents)
+		handleMessage(logger, writer, state, method, contents)
 	}
 }
 
-func handleMessage(logger *log.Logger, method string, contents []byte) {
+func handleMessage(logger *log.Logger, writer io.Writer, state analysis.State, method string, contents []byte) {
 	logger.Printf("Received message with method: %s", method)
 
 	switch method {
@@ -43,22 +48,48 @@ func handleMessage(logger *log.Logger, method string, contents []byte) {
 		)
 
     msg := lsp.NewInitializeResponse(request.ID)
-    reply := rpc.EncodeMessage(msg)
-
-    writer := os.Stdout
-    writer.Write([]byte(reply))
+    writeResponse(writer, msg)
 
     logger.Println("Sent reply")
   case "textDocument/didOpen":
     var request lsp.DidOpenTextDocumentNotification
     if err := json.Unmarshal(contents, &request); err != nil {
-      logger.Printf("Can't parse %s", err)
+      logger.Printf("textDocument/didOpen: %s", err)
     }
     logger.Printf(
-      "Opened: %s %s",
+      "Opened: %s",
+      request.Params.TextDocument.URI,
+    )
+    state.OpenDocument(
       request.Params.TextDocument.URI,
       request.Params.TextDocument.Text,
     )
+  case "textDocument/didChange":
+    var request lsp.TextDocumentDidChangeNotification
+    if err := json.Unmarshal(contents, &request); err != nil {
+      logger.Printf("textDocument/didChange: %s", err)
+      return
+    }
+    logger.Printf(
+      "Changed: %s",
+      request.Params.TextDocument.URI,
+    )
+    for _, change := range request.Params.ContentChanges {
+      state.UpdateDocument(request.Params.TextDocument.URI, change.Text)
+    }
+  case "textDocument/hover":
+    var request lsp.HoverRequest
+    if err := json.Unmarshal(contents, &request); err != nil {
+      logger.Printf("Can't parse: %s", err)
+    }
+
+    response := state.Hover(
+      request.ID,
+      request.Params.TextDocument.URI,
+      request.Params.Position,
+    )
+    writeResponse(writer, response)
+    logger.Println("Sent reply to textDocument/hover")
 	}
 }
 
@@ -73,4 +104,9 @@ func getLogger(filename string) *log.Logger {
 	}
 
 	return log.New(logfile, "[golsp]", log.Ldate|log.Ltime|log.Lshortfile)
+}
+
+func writeResponse(writer io.Writer, msg any) {
+  reply := rpc.EncodeMessage(msg)
+  writer.Write([]byte(reply))
 }
